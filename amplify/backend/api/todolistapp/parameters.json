@@ -1,0 +1,11 @@
+{
+  "AppSyncApiName": "todolistapp",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authtodolistapp883a233c",
+      "Outputs.UserPoolId"
+    ]
+  }
+}
