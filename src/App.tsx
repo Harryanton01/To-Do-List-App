@@ -12,6 +12,9 @@ import {
 import { withAuthenticator, Button, View, Card } from "@aws-amplify/ui-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Todo } from "./types";
+import TodoNote from "./components/TodoNote/TodoNote";
+import TodoForm from "./components/TodoForm/TodoForm";
 
 const initialFormState = {
   title: "",
@@ -19,18 +22,15 @@ const initialFormState = {
   timestamp_due: Math.floor(new Date().getTime() / 1000),
   completed: false,
 };
-type Todo = {
-  id: string;
-  title: string;
-  content?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-function unixToDate(UNIX_timestamp: number) {
+
+const unixToDate = (UNIX_timestamp: number) => {
   return new Date(UNIX_timestamp * 1000);
-}
+};
+export const unixToDateString = (UNIX_timestamp: number) => {
+  return unixToDate(UNIX_timestamp).toLocaleDateString("en-GB");
+};
 function App({ signOut }: any) {
-  const [todos, setTodos] = useState<any[] | undefined>([]);
+  const [todos, setTodos] = useState<Todo[] | undefined>([]);
   const [formData, setFormData] = useState(initialFormState);
   const fetchTodos = async () => {
     try {
@@ -38,7 +38,7 @@ function App({ signOut }: any) {
         query: listTodos,
         authMode: "AMAZON_COGNITO_USER_POOLS",
       })) as { data: ListTodosQuery };
-      setTodos(response.data.listTodos?.items);
+      setTodos(response.data.listTodos?.items as Todo[]);
     } catch (error) {
       console.log(error);
     }
@@ -101,17 +101,9 @@ function App({ signOut }: any) {
         <button onClick={createNote}>Create Note</button>
         <div style={{ marginBottom: 30 }}>
           {todos !== (null || undefined) &&
-            todos.map((note) => (
-              <div key={note!.id || note!.title}>
-                <h2>{note!.title}</h2>
-                <p>{note!.content}</p>
-                <p>{unixToDate(note.timestamp_due).toDateString()}</p>
-                <p>{note.completed.toString()}</p>
-                <button onClick={() => completeNote(note)}>Complete</button>
-                <button onClick={() => deleteNote(note)}>Delete note</button>
-              </div>
-            ))}
+            todos.map((note) => <TodoNote Todo={note} />)}
         </div>
+        <TodoForm />
       </Card>
       <Button onClick={signOut}>Sign Out</Button>
     </View>
